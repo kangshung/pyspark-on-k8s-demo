@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-logs
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-logs
+  nfs:
+    path: /nfs/share/demo/logs
+    server: xxx.xxx.xxx.xxx
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc-logs
+  namespace: airflow
+spec:
+  storageClassName: nfs-logs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-dags
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-dags
+  nfs:
+    path: /nfs/share/demo/dags
+    server: xxx.xxx.xxx.xxx
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc-dags
+  namespace: airflow
+spec:
+  storageClassName: nfs-dags
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
