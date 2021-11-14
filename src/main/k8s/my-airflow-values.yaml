@@ -1,0 +1,18 @@
+executor: "KubernetesExecutor"
+
+dags:
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    existingClaim: nfs-pvc-dags
+
+logs:
+  persistence:
+    enabled: true
+    size: 10Gi
+    existingClaim: nfs-pvc-logs
+
+webserver:
+  service:
+    type: "NodePort"

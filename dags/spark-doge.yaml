@@ -1,0 +1,53 @@
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: "spark-doge-{{ ds }}-{{ task_instance.try_number }}"
+  namespace: spark
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: "damianfilonowicz/spark:v3.1.1-hadoop3-gcs-2.2.3-bq-0.22.2-guava-30.1.1-jre"
+  imagePullPolicy: Always
+  mainApplicationFile: "gs://pyspark-demo-apps/doge_airflow.py"
+  arguments:
+    - "--date"
+    - "{{ ds }}"
+  sparkVersion: "3.1.1"
+  hadoopConf:
+    "fs.gs.project.id": "pyspark-demo-project"
+    "google.cloud.auth.service.account.enable": "true"
+    "google.cloud.auth.service.account.json.keyfile": "/var/secrets/google/key.json"
+  sparkConf:
+    "spark.eventLog.enabled": "true"
+    "spark.eventLog.dir": "gs://pyspark-demo-logs"
+    "spark.sql.shuffle.partitions": "4"
+  restartPolicy:
+    type: Never
+    onFailureRetries: 1
+    onFailureRetryInterval: 30
+    onSubmissionFailureRetries: 1
+    onSubmissionFailureRetryInterval: 30
+  driver:
+    cores: 1
+    memory: "512m"
+    serviceAccount: spark-spark
+    javaOptions: "-Divy.cache.dir=/tmp/ivy -Divy.home=/tmp/ivy -Dlog4j.configuration=file:///var/data/log4j/log4j.properties"
+    secrets:
+      - name: google-cloud-key
+        path: /var/secrets/google
+        secretType: Generic
+    configMaps:
+      - name: log4j
+        path: /var/data/log4j
+  executor:
+    cores: 1
+    instances: 2
+    memory: "512m"
+    secrets:
+      - name: google-cloud-key
+        path: /var/secrets/google
+        secretType: Generic
+    configMaps:
+      - name: log4j
+        path: /var/data/log4j
